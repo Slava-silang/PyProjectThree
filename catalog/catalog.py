@@ -1,6 +1,6 @@
 import json
 from typing import Dict, List
-from dataclasses import replace
+from dataclasses import replace, asdict
 from _collections_abc import Iterator
 from .model import Classroom
 from .errors import ItemAlreadyExistsError, ItemNotFoundError, InvalidItemError, CatalogError, InvalidItemInFile, InvalidVersionError
@@ -113,6 +113,21 @@ class Catalog:
             raise InvalidVersionError("Invalid version")
 
         self._items = temporary._items
+
+    def save_catalog(self, path: str) -> None:
+        items = []
+        for item in self._items.values():
+            items.append(asdict(item))
+        saved_items = {
+            "format_version": self.version,
+            "items": items,
+        }
+
+        try:
+            with open(path, "w", encoding="utf-8") as file:
+                json.dump(saved_items, file, ensure_ascii=False, indent=4)
+        except OSError as error:
+            raise CatalogError(f"Cannot write items to file {path}: {error}") from error
 
     def __len__(self) -> int:
 
