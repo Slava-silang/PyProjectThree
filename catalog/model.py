@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from .errors import InvalidItemError
 from datetime import datetime
+
+from .errors import InvalidItemError
+
 
 @dataclass
 class Classroom:
@@ -31,6 +33,5 @@ class Classroom:
         if type(self.size) is not int or self.size <= 0:
             raise InvalidItemError("Size field must be positive integer")
 
-        if self.comments is not None:
-            if not isinstance(self.comments, str):
-                raise InvalidItemError("Comment field must be string type")
+        if self.comments is not None and not isinstance(self.comments, str):
+            raise InvalidItemError("Comment field must be string type")

@@ -1,14 +1,21 @@
 import json
-from typing import Dict, List
-from dataclasses import replace, asdict
 from _collections_abc import Iterator
+from dataclasses import asdict, replace
+
+from .errors import (
+    CatalogError,
+    InvalidItemError,
+    InvalidItemInFile,
+    InvalidVersionError,
+    ItemAlreadyExistsError,
+    ItemNotFoundError,
+)
 from .model import Classroom
-from .errors import ItemAlreadyExistsError, ItemNotFoundError, InvalidItemError, CatalogError, InvalidItemInFile, InvalidVersionError
+
 
 class Catalog:
-
     def __init__(self):
-        self._items: Dict[str, Classroom] = {}
+        self._items: dict[str, Classroom] = {}
         self.version = "2.0.0"
 
     def add(self, item: Classroom) -> None:
@@ -24,7 +31,7 @@ class Catalog:
     def get(self, item_id: str) -> Classroom:
 
         if not isinstance(item_id, str):
-            raise InvalidItemError(f"Item id must be string type")
+            raise InvalidItemError("Item id must be string type")
 
         item = self._items.get(item_id)
         if item is None:
@@ -34,7 +41,7 @@ class Catalog:
     def remove(self, item_id: str) -> Classroom:
 
         if not isinstance(item_id, str):
-            raise InvalidItemError(f"Item id must be string type")
+            raise InvalidItemError("Item id must be string type")
 
         item = self._items.get(item_id)
         if item is None:
@@ -42,7 +49,7 @@ class Catalog:
 
         return self._items.pop(item_id)
 
-    def find_by_category(self, category: str) -> List[Classroom]:
+    def find_by_category(self, category: str) -> list[Classroom]:
         found = []
 
         for item in self._items.values():
@@ -51,7 +58,7 @@ class Catalog:
 
         return found
 
-    def find_by_name(self, name: str) -> List[Classroom]:
+    def find_by_name(self, name: str) -> list[Classroom]:
         found = []
 
         for item in self._items.values():
@@ -60,24 +67,28 @@ class Catalog:
 
         return found
 
-    def add_version_1_0_0(self, items: List[Dict]) -> None:
+    def add_version_1_0_0(self, items: list[dict]) -> None:
         for item in items:
             if not isinstance(item, dict):
                 raise InvalidItemInFile(f"Item {item} is wrong type")
             try:
                 classroom = Classroom(**item, comments="")
             except (InvalidItemError, TypeError) as error:
-                raise InvalidItemInFile(f"File contains invalid item: {error}") from error
+                raise InvalidItemInFile(
+                    f"File contains invalid item: {error}"
+                ) from error
             self.add(classroom)
 
-    def add_version_2_0_0(self, items: List[Dict]) -> None:
+    def add_version_2_0_0(self, items: list[dict]) -> None:
         for item in items:
             if not isinstance(item, dict):
                 raise InvalidItemInFile(f"Item {item} is wrong type")
             try:
                 classroom = Classroom(**item)
             except (InvalidItemError, TypeError) as error:
-                raise InvalidItemInFile(f"File contains invalid item: {error}") from error
+                raise InvalidItemInFile(
+                    f"File contains invalid item: {error}"
+                ) from error
             self.add(classroom)
 
     def load_catalog(self, path: str) -> None:
@@ -88,7 +99,7 @@ class Catalog:
         except FileNotFoundError as error:
             raise CatalogError(f"File {path} is not found") from error
         except json.JSONDecodeError as error:
-            raise InvalidItemInFile(f"Invalid json file") from error
+            raise InvalidItemInFile("Invalid json file") from error
 
         if not isinstance(data, dict):
             raise InvalidItemInFile("Invalid json file")
@@ -135,12 +146,18 @@ class Catalog:
 
     def __iter__(self) -> Iterator[Classroom]:
 
-        for item in self._items.values():
-            yield item
+        yield from self._items.values()
 
     def __contains__(self, item_id: str) -> bool:
 
         if not isinstance(item_id, str):
-            raise InvalidItemError(f"Item id must be string type")
+            raise InvalidItemError("Item id must be string type")
 
         return self._items.get(item_id) is not None
+
+    def __eq__(self, catalog: object) -> bool:
+        if not isinstance(catalog, Catalog):
+            raise NotImplementedError(
+                "Cannot compare Catalog with another type of data"
+            )
+        return self._items == catalog._items
