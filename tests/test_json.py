@@ -3,11 +3,12 @@ import json
 import pytest
 
 from catalog.catalog import Catalog
-from catalog.errors import InvalidVersionError, CatalogError, ItemAlreadyExistsError
+from catalog.errors import CatalogError, InvalidVersionError, ItemAlreadyExistsError
 from catalog.model import Classroom
 
 
 def test_round_trip_json(tmp_path):
+    """Check that saving and loading keeps the same classrooms."""
     catalog = Catalog()
 
     for id_ in ["001", "002", "003", "004"]:
@@ -33,6 +34,7 @@ def test_round_trip_json(tmp_path):
 
 
 def test_wrong_version(tmp_path):
+    """Check that an unsupported file version raises an error."""
     path = tmp_path / "catalog.json"
 
     catalog = Catalog()
@@ -54,7 +56,9 @@ def test_wrong_version(tmp_path):
     with pytest.raises(InvalidVersionError):
         new_catalog.load_catalog(path)
 
+
 def test_wrong_json(tmp_path):
+    """Check that broken JSON raises an error."""
     path = tmp_path / "catalog.json"
 
     catalog = Catalog()
@@ -78,7 +82,9 @@ def test_wrong_json(tmp_path):
     with pytest.raises(CatalogError):
         catalog.load_catalog(path)
 
+
 def test_saving_element_after_loading(tmp_path):
+    """Check that a failed load leaves the catalog unchanged."""
     path = tmp_path / "catalog.json"
     test_data = {
         "format_version": "2.0.0",
@@ -100,11 +106,19 @@ def test_saving_element_after_loading(tmp_path):
                 "year": 2020,
                 "size": 30,
                 "comments": None,
-            }
-        ]
+            },
+        ],
     }
 
-    classroom = Classroom(item_id="101", name="test classroom", number=1, year=2020, size=30, comments=None, category="Math class")
+    classroom = Classroom(
+        item_id="101",
+        name="test classroom",
+        number=1,
+        year=2020,
+        size=30,
+        comments=None,
+        category="Math class",
+    )
     catalog = Catalog()
     catalog.add(classroom)
     catalog_copy = Catalog()

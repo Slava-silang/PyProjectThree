@@ -6,6 +6,7 @@ from catalog.model import Classroom
 
 
 def test_creating_right_classroom():
+    """Check that a classroom stores the given field values."""
     classroom = Classroom(
         item_id="001",
         name="test",
@@ -26,6 +27,7 @@ def test_creating_right_classroom():
 
 
 def test_creating_wrong_item_id():
+    """Check that invalid field values raise errors."""
     with pytest.raises(InvalidItemError):
         Classroom(
             item_id=101,
@@ -105,6 +107,7 @@ def test_creating_wrong_item_id():
 
 
 def test_catalog_processing():
+    """Check adding, getting, and removing classrooms."""
     classroom_1 = Classroom(
         item_id="001",
         name="test",
@@ -140,6 +143,7 @@ def test_catalog_processing():
 
 
 def test_duplicate_item_id():
+    """Check that duplicate classroom IDs are rejected."""
     classroom_1 = Classroom(
         item_id="001",
         name="test",
@@ -169,6 +173,7 @@ def test_duplicate_item_id():
 
 
 def test_catalog_search():
+    """Check searching by category and by name with different letter case."""
     classroom_1 = Classroom(
         item_id="001",
         name="test",
@@ -187,6 +192,7 @@ def test_catalog_search():
 
 
 def test_iteration():
+    """Check that iteration returns classrooms in the order they were added."""
     classroom_1 = Classroom(
         item_id="001",
         name="test",
