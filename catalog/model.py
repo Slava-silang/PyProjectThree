@@ -46,3 +46,11 @@ class Classroom:
         # Allow either text or None for comments.
         if self.comments is not None and not isinstance(self.comments, str):
             raise InvalidItemError("Comment field must be string type")
+
+    def __str__(self):
+        return f"""{self.name}:
+    ID: {self.item_id}
+    Number: {self.number}
+    Category: {self.category}
+    Last year of renovation: {self.year}
+    Max number of students: {self.size}"""
