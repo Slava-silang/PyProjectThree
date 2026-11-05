@@ -177,7 +177,9 @@ class Catalog:
         except json.JSONDecodeError as error:
             raise InvalidItemInFile("Invalid json file") from error
         except OSError as error:
-            raise CatalogError(f"Cannot load items from file {path}: {error}") from error
+            raise CatalogError(
+                f"Cannot load items from file {path}: {error}"
+            ) from error
 
         # The main JSON value must be a dictionary.
         if not isinstance(data, dict):
